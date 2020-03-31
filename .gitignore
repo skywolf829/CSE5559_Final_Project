@@ -1,6 +1,7 @@
 SPADE/checkpoints/
 SPADE/results/
 SPADE/ADEChallengeData2016/
+SPADE/datasets/
 .idea/
 *.tar.gz
 *.zip
