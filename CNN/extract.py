@@ -1,19 +1,14 @@
 ## Basic Python libraries
-import sys
 import os
 import yaml
-import pickle
 from PIL import Image
 
 ## Deep learning and array processing libraries
 import numpy as np 
-import pandas as pd 
 import torch
-import torch.nn as nn
 import torch.nn.functional as F 
 import torchvision
 import torchvision.transforms as transforms 
-import torchvision.models as models
 
 ## Inner-project imports
 from models import ModelBuilder
@@ -98,13 +93,13 @@ def get_visual_features(img):
     return features
 
 # Below is only there for testing, commented out for now
-"""
+
 if __name__ == '__main__':
     # Inference
     img = Image.open(f'{image_directory}input/1.png')
     img = np.asarray(img)
     features = get_visual_features(img)
     print('End')
-"""
+
 
 
