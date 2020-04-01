@@ -1,0 +1,8 @@
+# User specific paths for data, etc
+Paths:
+  image_directory : './CNN/images/'
+
+  network_directory : './CNN/weights/'
+  
+# Useful if multiple code files share variables
+Variables:
