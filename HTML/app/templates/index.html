@@ -1,0 +1,110 @@
+<html>
+    <head>
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <title>VisAIR Final Project</title>
+        <style> 
+            div.gfg { 
+                margin:5px; 
+                padding:5px; 
+                height: 256px; 
+                overflow: auto; 
+                text-align:justify; 
+            }
+        </style> 
+        
+    </head>
+    <body>
+        <h1>Hello there!</h1>
+        <table id="GAUGAN IO">
+            <tbody>
+                <tr>
+                    <td align="center">Class options</td>
+                    <td align="center">Input</td>
+                    <td align="center">Output</td>
+                </tr>
+                <tr>
+                    <td width="10%" valign="top">
+                        <div class="gfg">
+                            {% for class in classes %}
+                            <a width="100%" style='background:rgb({{ class2rgb[class] }})' onclick='getElementById("GAUGAN_drawing").getContext("2d").fillStyle=rgb2hex("{{class2rgb[class]}}")'>{{class}}</a>
+                            <br>
+                            {% endfor %}
+                        </div>
+                    </td>
+                    <td align="center">
+                        <canvas id="GAUGAN_drawing" width="256" height="256" style="border:1px"></canvas>
+                    </td>
+                    <td align="center">
+                        <img id="GAUGAN_output" width="256" height="256" src=""></canvas>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+        
+
+        <script type="text/javascript">
+        function color2hex(c){
+            var hex = Number(c).toString(16);
+                if (hex.length < 2) {
+                    hex = "0" + hex;
+                }
+                return hex;
+            }
+            function rgb2hex(input){
+                s = input.split(",");
+                r = color2hex(s[0]);
+                g = color2hex(s[1]);
+                b = color2hex(s[2]);
+                hex = "#"+r+g+b;
+                return hex;
+            }
+        </script>
+
+        <script type="text/javascript">
+            var canvas = document.getElementById("GAUGAN_drawing");
+            var ctx = canvas.getContext("2d");
+            ctx.imageSmoothingEnabled = false;
+            var clicked = false;
+            var size = 20;
+            ctx.fillStyle=rgb2hex("128,128,0")
+            ctx.fillRect(0, 0, 256, 170)
+            ctx.fillStyle=rgb2hex("64,128,0")
+            ctx.fillRect(0, 170, 256, 85)
+
+            canvas.addEventListener('mousemove', function(event) {
+                if(clicked){ 
+                    x = event.offsetX;
+                    y = event.offsetY;
+
+                    ctx.fillRect(x-size/2, y-size/2, size, size)
+                }
+            }, false);
+
+            var slider = document.getElementById("myRange");
+
+            function onDocumentMouseDown(event){
+                event.preventDefault();
+                clicked = true;
+            }
+            function onDocumentMouseUp(event){
+                event.preventDefault();
+                clicked = false;
+
+                // Lots of help from https://stackoverflow.com/questions/54168580/sending-image-from-html-canvas-to-flask-python-not-working
+                // and https://stackoverflow.com/questions/54733662/how-to-send-html-data-to-flask-without-form
+                $.ajax({
+                    url: "/background_process_test",
+                    type: "get",
+                    data: {img: canvas.toDataURL("image/png",1.0)},
+                    success: function(response) {
+                        var python_bytes = response['img']
+                        python_bytes = python_bytes.substring(2, python_bytes.length-1)
+                        document.getElementById("GAUGAN_output").src = "data:img/png;base64,"+python_bytes;
+                    },
+                });
+            }
+            document.addEventListener('mousedown', onDocumentMouseDown, false);
+            document.addEventListener('mouseup', onDocumentMouseUp, false);
+        </script>
+    </body>
+</html>

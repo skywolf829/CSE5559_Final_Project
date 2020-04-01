@@ -3,7 +3,7 @@ import os
 from collections import OrderedDict
 
 import data
-from options.test_options import TestOptions
+from options.custom_options import CustomOptions
 from models.pix2pix_model import Pix2PixModel
 from util.visualizer import Visualizer
 from util import html
@@ -11,34 +11,6 @@ import numpy as np
 from skimage import transform, io
 import torch
 
-# Must set up options :/
-opt = TestOptions().parse()
-
-# Create model and put it into evaluation mode (we're not training)
-model = Pix2PixModel(opt)
-model.eval()
-
-def create_generated_image(seg_map):
-    '''
-    Full feedforward through Pix2Pix for generating an
-    output from a segmentation map of shape (x, y) where all
-    entries are ints representing class labels for the trained network
-    you are using. This image will be converted to (256, 256) for 
-    feedforward.
-    '''
-    seg = create_seg_map_tensor(seg_map)
-    # Set up data as they do in the original code
-    data = {}
-    data['label'] = seg
-    # image isn't important, but must exist anyway
-    data['image'] = seg
-    # instance isn't important, but must exist anyway
-    data['instance'] = torch.zeros(1)-1
-    data['path'] = None
-    generated = model(data, mode='inference')
-    # Detach the generated output of size (1, 1, 256, 256) and return a tensor of size (1, 256, 256)
-    generated = generated.cpu().detach().numpy()[0]
-    return generated
 
 def create_seg_map_tensor(seg_map):
     '''
@@ -73,11 +45,140 @@ def save_image(im, path):
     ''' 
     imageio.imsave(path, im)
 
+def uint82bin(n, count=8):
+    """returns the binary of integer n, count refers to amount of bits"""
+    return ''.join([str((n >> y) & 1) for y in range(count - 1, -1, -1)])
+
+def get_cmap(N):
+    '''
+    Creates an arbitrary color map for some number of classes using bit shifting
+    '''
+    cmap = np.zeros((N, 3), dtype=np.uint8)
+    for i in range(N):
+        r, g, b = 0, 0, 0
+        id = i + 1  # let's give 0 a color
+        for j in range(7):
+            str_id = uint82bin(id)
+            r = r ^ (np.uint8(str_id[-1]) << (7 - j))
+            g = g ^ (np.uint8(str_id[-2]) << (7 - j))
+            b = b ^ (np.uint8(str_id[-3]) << (7 - j))
+            id = id >> 3
+        cmap[i, 0] = r
+        cmap[i, 1] = g
+        cmap[i, 2] = b
+        #print(str(i+1)+","+str(cmap[i,0])+","+str(cmap[i,1])+","+str(cmap[i,2]))
+    return cmap
+
+def create_cmap(file_location, file_location_out, N):
+    '''
+    Was used as a temporary utility function to combine two csv's
+    and create a final cmap text document for future reading
+    '''
+    cmap = get_cmap(N)
+    f = open(file_location, "r")
+    f_out = open(file_location_out, "a+")
+    if f.mode == "r":
+        fl = f.readlines()
+        for line in fl:
+            if line[0] != "#":
+                contents = line.split(",")
+                i = int(contents[0].strip())-1
+                c = contents[1].strip()
+                line = line.strip() + "," + str(cmap[i,0]) + "," + str(cmap[i,1]) + "," + str(cmap[i,2])+"\n"
+                f_out.write(line)
+            else:                
+                f_out.write(line)
+    f.close()
+    f_out.close()
+
+def load_cmap(file_location):
+    '''
+    Reades a text document at file_location for color mapping 
+    between classes, the class' grayscale segmentation map color,
+    and a visualization color that's 3 channel. 
+    Returns 2 color maps, one for the rgb colors (3 channel) to black 
+    and white (1 channel), and another for black and white to colored
+    '''
+    rgb2bw = {}
+    bw2rgb = {}
+    class2rgb = {}
+    classes = []
+    f = open(file_location, "r")
+    seen_first_line = False
+    if f.mode == "r":
+        fl = f.readlines()
+        for line in fl:
+            if line[0] != "#":
+                if seen_first_line:
+                    contents = line.split(",")
+                    bw = int(contents[0].strip())
+                    c = contents[1].strip()
+                    r = int(contents[2].strip())
+                    g = int(contents[3].strip())
+                    b = int(contents[4].strip())
+                    rgb2bw[str(r)+","+str(g)+","+str(b)] = bw
+                    bw2rgb[bw] = np.array([r, g, b])
+                    class2rgb[c] = str(r)+","+str(g)+","+str(b)
+                    classes.append(c)
+                else:
+                    num_classes = int(line.strip())
+                    seen_first_line = True
+    f.close()
+    return rgb2bw, bw2rgb, classes, class2rgb
+
+def convert_drawing_to_segmentation_map(drawing, rgb2bw):
+    '''
+    Converts a drawing using colors from a specific color map into the
+    segmentation map values for use in Pix2Pix network.
+    drawing comes in as (256, 256, 3)
+    '''
+    seg_map = np.zeros((drawing.shape[0], drawing.shape[1]))
+    for i in range(seg_map.shape[0]):
+        for j in range(seg_map.shape[1]):
+            asStr = str(drawing[i,j,0])+","+str(drawing[i,j,1])+","+str(drawing[i,j,2])
+            seg_map[i, j]= rgb2bw[asStr]
+    return seg_map
+
+class GAUGAN():
+
+    def __init__(self):
+        # Must set up options :/
+        self.opt = CustomOptions().parse()
+
+        # Create model and put it into evaluation mode (we're not training)
+        self.model = Pix2PixModel(self.opt)
+        self.model.eval()
+
+    def generate_from_seg_map(self, seg_map):
+        '''
+        Full feedforward through Pix2Pix for generating an
+        output from a segmentation map of shape (x, y) where all
+        entries are ints representing class labels for the trained network
+        you are using. This image will be converted to (256, 256) for 
+        feedforward.
+        '''
+        # Set up data as they do in the original code
+        data = {}
+        data['label'] = seg_map
+        # image isn't important, but must exist anyway
+        data['image'] = seg_map
+        # instance isn't important, but must exist anyway
+        data['instance'] = torch.zeros(1)-1
+        data['path'] = None
+        generated = self.model(data, mode='inference')
+        # Detach the generated output of size (1, 1, 256, 256) and return a tensor of size (1, 256, 256)
+        generated = generated.cpu().detach().numpy()[0]
+        return generated
+
 
 # Just a placeholder variable for the current directory
-folder_path = os.path.dirname(os.path.abspath(__file__))
-
+#folder_path = os.path.dirname(os.path.abspath(__file__))
+'''
 seg = imageio.imread(os.path.join(folder_path, "TestFolder", "SegMaps", "ADE_train_00000002.png"))
-gen = create_generated_image(seg)
-gen_image = generated_to_savable_image(gen)
+seg = create_seg_map_tensor(seg)
+g = GAUGAN()
+gen_image = g.generate_from_seg_map(seg)
+gen_image = generated_to_savable_image(gen_image)
 save_image(gen_image, os.path.join(folder_path, "TestResults","image2.png"))
+'''
+#create_cmap(os.path.join(folder_path, "ade20k_classColors.txt"), os.path.join(folder_path,"ade20k_cmap.txt"), 150)

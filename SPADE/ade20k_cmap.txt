@@ -1,0 +1,164 @@
+# These are the class colors for ade20k dataset
+# The format is as follows:
+# i, class_name, r, g, b
+# 
+# i is the class number
+# class_name is the class name
+# r g b is the color for the class in the segmentation map visual (for drawing)
+# i, r, g, b must be integers
+# Hashtags indicate comments for this parser, must be the first character of the line
+# Inputs will be stripped, so don't worry about whitespace
+#
+151
+0,none,0,0,0
+1,wall,128,0,0
+2,building,0,128,0
+3,sky,128,128,0
+4,floor,0,0,128
+5,tree,128,0,128
+6,ceiling,0,128,128
+7,road,128,128,128
+8,bed,64,0,0
+9,windowpane,192,0,0
+10,grass,64,128,0
+11,cabinet,192,128,0
+12,sidewalk,64,0,128
+13,person,192,0,128
+14,earth,64,128,128
+15,door,192,128,128
+16,table,0,64,0
+17,mountain,128,64,0
+18,plant,0,192,0
+19,curtain,128,192,0
+20,chair,0,64,128
+21,car,128,64,128
+22,water,0,192,128
+23,painting,128,192,128
+24,sofa,64,64,0
+25,shelf,192,64,0
+26,house,64,192,0
+27,sea,192,192,0
+28,mirror,64,64,128
+29,rug,192,64,128
+30,field,64,192,128
+31,armchair,192,192,128
+32,seat,0,0,64
+33,fence,128,0,64
+34,desk,0,128,64
+35,rock,128,128,64
+36,wardrobe,0,0,192
+37,lamp,128,0,192
+38,bathtub,0,128,192
+39,railing,128,128,192
+40,cushion,64,0,64
+41,base,192,0,64
+42,box,64,128,64
+43,column,192,128,64
+44,signboard,64,0,192
+45,chest of drawers,192,0,192
+46,counter,64,128,192
+47,sand,192,128,192
+48,sink,0,64,64
+49,skyscraper,128,64,64
+50,fireplace,0,192,64
+51,refrigerator,128,192,64
+52,grandstand,0,64,192
+53,path,128,64,192
+54,stairs,0,192,192
+55,runway,128,192,192
+56,case,64,64,64
+57,pool table,192,64,64
+58,pillow,64,192,64
+59,screen door,192,192,64
+60,stairway,64,64,192
+61,river,192,64,192
+62,bridge,64,192,192
+63,bookcase,192,192,192
+64,blind,32,0,0
+65,coffee table,160,0,0
+66,toilet,32,128,0
+67,flower,160,128,0
+68,book,32,0,128
+69,hill,160,0,128
+70,bench,32,128,128
+71,countertop,160,128,128
+72,stove,96,0,0
+73,palm,224,0,0
+74,kitchen island,96,128,0
+75,computer,224,128,0
+76,swivel chair,96,0,128
+77,boat,224,0,128
+78,bar,96,128,128
+79,arcade machine,224,128,128
+80,hovel,32,64,0
+81,bus,160,64,0
+82,towel,32,192,0
+83,light,160,192,0
+84,truck,32,64,128
+85,tower,160,64,128
+86,chandelier,32,192,128
+87,awning,160,192,128
+88,streetlight,96,64,0
+89,booth,224,64,0
+90,television receiver,96,192,0
+91,airplane,224,192,0
+92,dirt track,96,64,128
+93,apparel,224,64,128
+94,pole,96,192,128
+95,land,224,192,128
+96,bannister,32,0,64
+97,escalator,160,0,64
+98,ottoman,32,128,64
+99,bottle,160,128,64
+100,buffet,32,0,192
+101,poster,160,0,192
+102,stage,32,128,192
+103,van,160,128,192
+104,ship,96,0,64
+105,fountain,224,0,64
+106,conveyer belt,96,128,64
+107,canopy,224,128,64
+108,washer,96,0,192
+109,plaything,224,0,192
+110,swimming pool,96,128,192
+111,stool,224,128,192
+112,barrel,32,64,64
+113,basket,160,64,64
+114,waterfall,32,192,64
+115,tent,160,192,64
+116,bag,32,64,192
+117,minibike,160,64,192
+118,cradle,32,192,192
+119,oven,160,192,192
+120,ball,96,64,64
+121,food,224,64,64
+122,step,96,192,64
+123,tank,224,192,64
+124,trade name,96,64,192
+125,microwave,224,64,192
+126,pot,96,192,192
+127,animal,224,192,192
+128,bicycle,0,32,0
+129,lake,128,32,0
+130,dishwasher,0,160,0
+131,screen,128,160,0
+132,blanket,0,32,128
+133,sculpture,128,32,128
+134,hood,0,160,128
+135,sconce,128,160,128
+136,vase,64,32,0
+137,traffic light,192,32,0
+138,tray,64,160,0
+139,trashcan,192,160,0
+140,fan,64,32,128
+141,pier,192,32,128
+142,crt screen,64,160,128
+143,plate,192,160,128
+144,monitor,0,96,0
+145,bulletin board,128,96,0
+146,shower,0,224,0
+147,radiator,128,224,0
+148,glass,0,96,128
+149,clock,128,96,128
+150,flag,0,224,128
+151,all,255,255,255
