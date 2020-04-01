@@ -93,13 +93,14 @@ def get_visual_features(img):
     return features
 
 # Below is only there for testing, commented out for now
-
+"""
 if __name__ == '__main__':
     # Inference
     img = Image.open(f'{image_directory}input/1.png')
     img = np.asarray(img)
     features = get_visual_features(img)
     print('End')
+"""
 
 
 
