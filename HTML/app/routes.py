@@ -1,15 +1,28 @@
-import flask
-from flask import render_template
+## Standard library imports
 import base64
-from app import app
-import sys, os
-import numpy as np
-from PIL import Image
-import cv2
+import sys
+import os
+
+## Append to path
 folder_path = os.path.dirname(os.path.abspath(__file__))
 SPADE_folder_path = os.path.join(folder_path, "..", "..", "SPADE")
 sys.path.append(SPADE_folder_path)
+
+sys.path.append(os.getcwd())
+sys.path.append(os.path.join(os.getcwd(), 'HTML'))
+sys.path.append(os.path.join(os.getcwd(), 'CNN'))
+
+## Random Imports
+import flask
+from flask import render_template
+import numpy as np
+from PIL import Image
+import cv2
+
+## Inner-project Imports
+from app import app
 from generate import *
+import extract
 
 g = GAUGAN()
 rgb2bw, bw2rgb, classes, class2rgb = load_cmap(os.path.join(SPADE_folder_path, "ade20k_cmap.txt"))

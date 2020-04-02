@@ -11,7 +11,7 @@ import torchvision
 import torchvision.transforms as transforms 
 
 ## Inner-project imports
-from models import ModelBuilder
+from CNN.models import ModelBuilder
 
 ##### Code begins #####
 
@@ -63,7 +63,7 @@ def get_visual_features(img):
 
     Input
     img :: 3D NumPy array
-        Takes a [3, x, y] NumPy array to be converted into a PIL Image
+        Takes a [x, y, 3] NumPy array to be converted into a PIL Image
 
     Output
     features :: 1D NumPy array
@@ -101,6 +101,7 @@ if __name__ == '__main__':
     features = get_visual_features(img)
     print('End')
 """
+
 
 
 
