@@ -24,6 +24,9 @@ from app import app
 from generate import *
 import extract
 
+# Comment the below line out and insert wherever needed
+# visual_features = extract.get_visual_features(generated_img)
+
 g = GAUGAN()
 rgb2bw, bw2rgb, classes, class2rgb = load_cmap(os.path.join(SPADE_folder_path, "ade20k_cmap.txt"))
 
