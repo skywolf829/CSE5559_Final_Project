@@ -6,9 +6,11 @@ import os
 ## Append to path
 folder_path = os.path.dirname(os.path.abspath(__file__))
 SPADE_folder_path = os.path.join(folder_path, "..", "..", "SPADE")
-CNN_folder_path = os.path.join(folder_path, "..", "..", "CNN")
 sys.path.append(SPADE_folder_path)
-sys.path.append(CNN_folder_path)
+
+sys.path.append(os.getcwd())
+sys.path.append(os.path.join(os.getcwd(), 'HTML'))
+sys.path.append(os.path.join(os.getcwd(), 'CNN'))
 
 ## Random Imports
 import flask
@@ -48,7 +50,9 @@ def background_process_test():
     seg_map = create_seg_map_tensor(seg_map)
     generated_img = g.generate_from_seg_map(seg_map)
     generated_img = generated_to_savable_image(generated_img)
-    save_image(generated_img, os.path.join(folder_path, "test.png"))
+    #save_image(generated_img, os.path.join(folder_path, "test.png"))
+    # Color space issue correction
+    generated_img = cv2.cvtColor(generated_img, cv2.COLOR_BGR2RGB)
     success, return_img = cv2.imencode(".png", generated_img)
     return_img = return_img.tobytes()
     return flask.jsonify({"img":str(base64.b64encode(return_img))})

@@ -82,16 +82,7 @@
 
             var slider = document.getElementById("myRange");
 
-            function onDocumentMouseDown(event){
-                event.preventDefault();
-                clicked = true;
-            }
-            function onDocumentMouseUp(event){
-                event.preventDefault();
-                clicked = false;
-
-                // Lots of help from https://stackoverflow.com/questions/54168580/sending-image-from-html-canvas-to-flask-python-not-working
-                // and https://stackoverflow.com/questions/54733662/how-to-send-html-data-to-flask-without-form
+            function sketch2real(){
                 $.ajax({
                     url: "/background_process_test",
                     type: "get",
@@ -103,8 +94,24 @@
                     },
                 });
             }
+
+            function onDocumentMouseDown(event){
+                event.preventDefault();
+                clicked = true;
+            }
+            function onDocumentMouseUp(event){
+                event.preventDefault();
+                clicked = false;
+
+                // Lots of help from https://stackoverflow.com/questions/54168580/sending-image-from-html-canvas-to-flask-python-not-working
+                // and https://stackoverflow.com/questions/54733662/how-to-send-html-data-to-flask-without-form
+                sketch2real();
+            }
             document.addEventListener('mousedown', onDocumentMouseDown, false);
             document.addEventListener('mouseup', onDocumentMouseUp, false);
+            $(document).ready(function(){
+                sketch2real();
+            });
         </script>
     </body>
 </html>

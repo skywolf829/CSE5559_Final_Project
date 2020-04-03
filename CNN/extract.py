@@ -1,6 +1,5 @@
 ## Basic Python libraries
 import os
-import sys
 import yaml
 from PIL import Image
 
@@ -12,19 +11,16 @@ import torchvision
 import torchvision.transforms as transforms 
 
 ## Inner-project imports
-
-folder_path = os.path.dirname(os.path.abspath(__file__))
-sys.path.append(os.path.join(folder_path, ".."))
-print(folder_path)
 from CNN.models import ModelBuilder
+
 ##### Code begins #####
 
 # Path to config file
-config_path = os.path.join(folder_path, 'config.yaml')
+config_path = 'CNN/config.yaml'
 
 # Open the yaml config file
 try:
-    with open(config_path) as config_file: 
+    with open(os.path.abspath(config_path)) as config_file: 
         config = yaml.safe_load(config_file)
 
         # Location of any saved images
