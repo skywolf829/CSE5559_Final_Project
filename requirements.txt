@@ -1,0 +1,8 @@
+torch
+torchvision
+dominate>=2.3.1
+dill
+scikit-image
+flask
+python-dotenv
+opencv-python
