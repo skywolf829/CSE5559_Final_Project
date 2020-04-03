@@ -15,15 +15,18 @@ The goal is to see what changes in the input drawing cause interesting changes i
 
 This project uses python 3+ and PyTorch 1.0 for the machine learning, and flask for connecting the HTML/web-based front end with the back-end.
 
-### Install flask:
+### Install flask and misc dependencies:
 ```bash
 pip install flask
+pip install python-dotenv
+pip install opencv-python
 ```
 
 ### Install SPADE (GAUGAN) dependencies
 ```bash
 cd SPADE
 pip install -r requirements.txt
+pip install torchvision
 ```
 ### Install ade20k checkpoint for SPADE
 Download the tar of the pretrained models from the [Google Drive Folder](https://drive.google.com/file/d/12gvlTbMvUcJewQlSEaZdeb2CdOB-b8kQ/view?usp=sharing), save it in 'SPADE/checkpoints/', and run
@@ -36,6 +39,7 @@ tar xvf checkpoints.tar.gz
 ## Running the code
 After proper installation, navigate to the base folder and run 
 ```bash
+export FLASK_APP=HTML/playground.py
 python -m flask run
 ```
 
