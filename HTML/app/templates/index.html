@@ -84,7 +84,7 @@
 
             function sketch2real(){
                 $.ajax({
-                    url: "/background_process_test",
+                    url: "/get_generated_image",
                     type: "get",
                     data: {img: canvas.toDataURL("image/png",1.0)},
                     success: function(response) {
@@ -93,6 +93,12 @@
                         document.getElementById("GAUGAN_output").src = "data:img/png;base64,"+python_bytes;
                     },
                 });
+            }
+
+            function realtimeUpdate(){
+                if(clicked){
+                    sketch2real();
+                }
             }
 
             function onDocumentMouseDown(event){
@@ -112,6 +118,7 @@
             $(document).ready(function(){
                 sketch2real();
             });
+            var myVar = setInterval(realtimeUpdate, 500);
         </script>
     </body>
 </html>

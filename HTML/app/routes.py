@@ -36,9 +36,8 @@ def index():
     return render_template('index.html', classes=classes, class2rgb=class2rgb)
 
 #background process happening without any refreshing
-@app.route('/background_process_test')
-def background_process_test():
-    print ("Hello")
+@app.route('/get_generated_image')
+def get_generated_image():
     sent_data = flask.request.args.get('img')
     encoded_data = sent_data.split(',')[1]
     decoded_data = base64.b64decode(encoded_data)
