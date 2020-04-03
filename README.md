@@ -28,11 +28,10 @@ pip install -r requirements.txt
 ### Install ade20k checkpoint for SPADE
 Download the tar of the pretrained models from the [Google Drive Folder](https://drive.google.com/file/d/12gvlTbMvUcJewQlSEaZdeb2CdOB-b8kQ/view?usp=sharing), save it in 'SPADE/checkpoints/', and run
 
-    ```
-    cd checkpoints
-    tar xvf checkpoints.tar.gz
-    cd ../
-    ```
+```
+cd checkpoints
+tar xvf checkpoints.tar.gz
+```
 
 ## Running the code
 After proper installation, navigate to the base folder and run 
