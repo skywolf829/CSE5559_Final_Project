@@ -18,6 +18,7 @@ from flask import render_template
 import numpy as np
 from PIL import Image
 import cv2
+from skimage.measure import compare_ssim as ssim
 
 ## Inner-project Imports
 from app import app
@@ -55,3 +56,21 @@ def get_generated_image():
     success, return_img = cv2.imencode(".png", generated_img)
     return_img = return_img.tobytes()
     return flask.jsonify({"img":str(base64.b64encode(return_img))})
+
+@app.route('/get_image_metrics')
+def get_image_metrics():
+    sent_data_1 = flask.request.args.get('img1')
+    sent_data_2 = flask.request.args.get('img2')
+    encoded_data_1 = sent_data_1.split(',')[1]
+    encoded_data_2 = sent_data_2.split(',')[1]
+    decoded_data_1 = base64.b64decode(encoded_data_1)
+    decoded_data_2 = base64.b64decode(encoded_data_2)
+    import io
+    img1 = Image.open(io.BytesIO(decoded_data_1))
+    img1 = np.asarray(img1)[:,:,0:3].astype(np.uint8)
+    img2 = Image.open(io.BytesIO(decoded_data_2))
+    img2 = np.asarray(img2)[:,:,0:3].astype(np.uint8)
+
+    ssim_result = ssim(img1, img2, multichannel=True)
+    mse = np.mean((img1 - img2) ** 2) ** 0.5
+    return flask.jsonify({"mse":str(mse), "ssim":str(ssim_result)})

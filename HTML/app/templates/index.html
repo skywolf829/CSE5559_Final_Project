@@ -1,6 +1,7 @@
 <html>
     <head>
         <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
         <title>VisAIR Final Project</title>
         <style> 
             div.gfg { 
@@ -19,14 +20,14 @@
             <tbody>
                 <tr>
                     <td align="center">Class options</td>
-                    <td align="center">Input</td>
+                    <td align="center"><button style="float: left;" onclick="imageUndo()">Undo</button>Input<button style="float: right;" onclick="imageRedo()">Redo</button></td>
                     <td align="center">Output</td>
                 </tr>
                 <tr>
                     <td width="10%" valign="top">
                         <div class="gfg">
                             {% for class in classes %}
-                            <a width="100%" style='background:rgb({{ class2rgb[class] }})' onclick='getElementById("GAUGAN_drawing").getContext("2d").fillStyle=rgb2hex("{{class2rgb[class]}}")'>{{class}}</a>
+                            <a width="100%" style='background:rgb({{ class2rgb[class] }})' onclick='setDrawingColor("{{class2rgb[class]}}")'>{{class}}</a>
                             <br>
                             {% endfor %}
                         </div>
@@ -37,6 +38,40 @@
                     <td align="center">
                         <img id="GAUGAN_output" width="256" height="256" src=""></canvas>
                     </td>
+                </tr>
+                <tr>
+                    <td align="center"></td>
+                    <td align="center">
+                        Brush size: <a id="brushSizeText">20</a><input type="range" min="1" max="100" value="20" class="slider" id="brushSizeSlider">
+                        <br>
+                        Input shape: <select id="inputShape"><option id="line" value="line">Line</option><option id="square" value="square">Square</option></select>
+                    </td>
+                    <td align="center"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <br><br>
+
+        <table>
+            <tbody>
+                <tr>
+                    <td align="center">Image history</td>
+                    <td align="center"></td>
+                    <td align="center">Comparison metrics</td>
+                    <td align="center"></td>
+                </tr>
+                <tr>
+                    <td width="20%" valign="top"><div class="gfg" id="imageHistory"></div></td>
+                    <td align="center">Image 1<br><img id="img1" width="128" height="128" style="border:1px" src=""></img></td>
+                    <td align="center" id="comparisonMetrics"></td>
+                    <td align="center">Image 2<br><img id="img2" width="128" height="128" style="border:1px" src=""></img></td>
+                </tr>
+                <tr>
+                    <td align="center"></td>
+                    <td align="center"><canvas id="ssim_chart" width="250" height="250" style="border:1px"></canvas></td>
+                    <td align="center"></td>
+                    <td align="center"><canvas id="mse_chart" width="250" height="250" style="border:1px"></canvas></td>
                 </tr>
             </tbody>
         </table>
@@ -62,25 +97,138 @@
 
         <script type="text/javascript">
             var canvas = document.getElementById("GAUGAN_drawing");
-            var ctx = canvas.getContext("2d");
-            ctx.imageSmoothingEnabled = false;
-            var clicked = false;
-            var size = 20;
-            ctx.fillStyle=rgb2hex("128,128,0")
-            ctx.fillRect(0, 0, 256, 170)
-            ctx.fillStyle=rgb2hex("64,128,0")
-            ctx.fillRect(0, 170, 256, 85)
+            var outputImg = document.getElementById("GAUGAN_output");
+            var slider = document.getElementById("brushSizeSlider");
+            var shapeSelector = document.getElementById("inputShape");
+            var ssim_chart = document.getElementById("ssim_chart");
+            var mse_chart = document.getElementById("mse_chart");
 
+            var ctx = canvas.getContext("2d");
+            var imageArray = new Array();
+            var generatedImageArray = new Array();
+            var currentImageSpot = -1;
+            var clicked = false;
+            var changesMade = false;
+            var size = 20;
+            var img1 = null;
+            var img2 = null;
+            var imgToOverwrite = 0;
+
+            ctx.imageSmoothingEnabled = false;
+            ctx.fillStyle=rgb2hex("128,128,0");
+            ctx.fillRect(0, 0, 256, 170);
+            ctx.fillStyle=rgb2hex("64,128,0");
+            ctx.fillRect(0, 170, 256, 86);
+            ctx.strokeStyle = rgb2hex("64,128,0");
+
+            var mse_line_chart = new Chart(mse_chart.getContext("2d"), {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: "MSE",
+                            fillColor: "rgba(151,187,205,0.2)",
+                            strokeColor: "rgba(151,187,205,1)",
+                            pointColor: "rgba(151,187,205,1)",
+                            pointStrokeColor: "#fff",
+                            pointHighlightFill: "#fff",
+                            pointHighlightStroke: "rgba(151,187,205,1)",
+                            data: []
+                        }
+                    ]
+                },
+                options:{
+                    title: {
+                        display: true,
+                        text: 'MSE'
+                    },
+                    legend: {
+                        display: false
+                    },
+                    scales:{
+                        xAxes: [{
+                            display: false, //this will remove all the x-axis grid lines
+                            ticks: {
+                                display: false //this will remove only the label
+                            }
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true
+                            }
+                        }]
+                    }
+                }
+            });
+            var ssim_line_chart = new Chart(ssim_chart.getContext("2d"), {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: "SSIM",
+                            fillColor: "rgba(151,187,205,0.2)",
+                            strokeColor: "rgba(151,187,205,1)",
+                            pointColor: "rgba(151,187,205,1)",
+                            pointStrokeColor: "#fff",
+                            pointHighlightFill: "#fff",
+                            pointHighlightStroke: "rgba(151,187,205,1)",
+                            data: []
+                        }
+                    ]
+                },
+                options:{
+                    title: {
+                        display: true,
+                        text: 'SSIM'
+                    },
+                    legend: {
+                        display: false
+                    },
+                    scales:{
+                        xAxes: [{
+                            display: false, //this will remove all the x-axis grid lines
+                            ticks: {
+                                display: false //this will remove only the label
+                            }
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true,
+                                suggestedMax: 1
+                            }
+                        }]
+                    }
+                }
+            });
+
+            var lastx, lasty;
             canvas.addEventListener('mousemove', function(event) {
                 if(clicked){ 
                     x = event.offsetX;
                     y = event.offsetY;
-
-                    ctx.fillRect(x-size/2, y-size/2, size, size)
+                    if(x > -size / 2 && x < 256+size/2 && y > -size / 2 && y < 256 + size / 2){
+                        changesMade = true;
+                        if(document.getElementById("square").selected){                        
+                            ctx.fillRect(Math.round(x-size/2), Math.round(y-size/2), size, size);
+                        }
+                        else if(document.getElementById("line").selected){
+                            ctx.beginPath();
+                            ctx.lineWidth = size;
+                            ctx.lineJoin = "round";
+                            ctx.lineCap = "round";
+                            ctx.moveTo(lastx, lasty);
+                            ctx.lineTo(x, y);
+                            ctx.closePath();
+                            ctx.stroke();
+                        }
+                    }
+                    lastx = x;
+                    lasty = y;
                 }
             }, false);
 
-            var slider = document.getElementById("myRange");
 
             function sketch2real(){
                 $.ajax({
@@ -90,35 +238,172 @@
                     success: function(response) {
                         var python_bytes = response['img']
                         python_bytes = python_bytes.substring(2, python_bytes.length-1)
-                        document.getElementById("GAUGAN_output").src = "data:img/png;base64,"+python_bytes;
+                        outputImg.src = "data:img/png;base64,"+python_bytes;
+                        generatedImageArray.push(outputImg.src);
+                        document.getElementById("imageHistory").innerHTML += 
+                        "<a id='genImage"+generatedImageArray.length+"' onclick='previousGeneratedImageClicked("+(generatedImageArray.length-1)+")'>Generated image " + generatedImageArray.length + "</a><br>"
+                        
+                        if(img1 == null){
+                            img1 = generatedImageArray.length-1;
+                            document.getElementById("img1").src = generatedImageArray[img1];
+                            document.getElementById("genImage"+(img1+1)).style = "background-color: #FFFF00";
+                        }
+                        else if(img2 == null){
+                            img2 = generatedImageArray.length-1;
+                            document.getElementById("img2").src = generatedImageArray[img2];
+                            document.getElementById("genImage"+(img2+1)).style = "background-color: #FFFF00";
+                        }
+                        else if(img2 == generatedImageArray.length-2){
+                            document.getElementById("genImage"+(img1+1)).style = "background-color: #FFFFFF";
+                            document.getElementById("genImage"+(img2+1)).style = "background-color: #FFFFFF";
+                            img1 = img2;
+                            img2 = generatedImageArray.length-1;
+                            document.getElementById("genImage"+(img1+1)).style = "background-color: #FFFF00";
+                            document.getElementById("genImage"+(img2+1)).style = "background-color: #FFFF00";
+                            document.getElementById("img1").src = generatedImageArray[img1];
+                            document.getElementById("img2").src = generatedImageArray[img2];
+                        }
+
+                        updateMetrics();
                     },
                 });
             }
 
+            function previousGeneratedImageClicked(num){
+                if(imgToOverwrite == 0){
+                    imgToOverwrite = 1;
+                    document.getElementById("genImage"+(img1+1)).style = "background-color: #FFFFFF";
+                    img1 = num;
+                    document.getElementById("genImage"+(img1+1)).style = "background-color: #FFFF00";
+                }
+                else{
+                    imgToOverwrite = 0;
+                    document.getElementById("genImage"+(img2+1)).style = "background-color: #FFFFFF";
+                    img2 = num;
+                    document.getElementById("genImage"+(img2+1)).style = "background-color: #FFFF00";
+                }
+                document.getElementById("img1").src = generatedImageArray[img1];
+                document.getElementById("img2").src = generatedImageArray[img2];
+                updateMetrics();
+            }
+            function updateMetrics(){
+                if(img1 != null && img2 != null){
+                    $.ajax({
+                        url: "/get_image_metrics",
+                        type: "get",
+                        data: {
+                            img1: generatedImageArray[img1],
+                            img2: generatedImageArray[img2]
+                        },
+                        success: function(response) {
+                            var ssim = Number(response['ssim']).toFixed(2);
+                            var mse = Number(response['mse']).toFixed(2);
+
+                            document.getElementById("comparisonMetrics").innerHTML = "SSIM: " + ssim + "<br>MSE: " + mse;
+                            //ssim_line_chart.data.labels.push(generatedImageArray.length-2);
+                            ssim_line_chart.data.labels.push("Images " + img1 + " and " + img2);
+                            mse_line_chart.data.labels.push("Images " + img1 + " and " + img2);
+                            ssim_line_chart.data.datasets.forEach((dataset) => {
+                                dataset.data.push(ssim);
+                            });
+                            mse_line_chart.data.datasets.forEach((dataset) => {
+                                dataset.data.push(mse);
+                            });
+
+                            if(ssim_line_chart.data.labels.length > 20){
+                                ssim_line_chart.data.labels.shift();
+                                mse_line_chart.data.labels.shift();
+                                ssim_line_chart.data.datasets.forEach((dataset) => {
+                                    dataset.data.shift();
+                                });
+                                mse_line_chart.data.datasets.forEach((dataset) => {
+                                    dataset.data.shift();
+                                });
+                            }
+                            ssim_line_chart.update();
+                            mse_line_chart.update();
+                        },                    
+                    });
+                }
+            }
             function realtimeUpdate(){
-                if(clicked){
+                if(clicked && changesMade){
                     sketch2real();
                 }
             }
 
+            slider.oninput =  function(){
+                document.getElementById("brushSizeText").innerHTML = slider.value;
+                size = slider.value;
+            }
+
+            // Code from: https://www.codicode.com/art/undo_and_redo_to_the_html5_canvas.aspx
+            function imagePush(){
+                if(currentImageSpot+1 >= imageArray.length){
+                    imageArray.length = currentImageSpot+1; 
+                    currentImageSpot++;
+                    imageArray.push(canvas.toDataURL());
+                }
+                else{
+                    currentImageSpot++;
+                    imageArray[currentImageSpot] = canvas.toDataURL();
+                }
+               
+            }
+            function imageUndo(){ 
+                if(currentImageSpot > 0){
+                    currentImageSpot--;
+                    var canvasPic = new Image();
+                    canvasPic.src = imageArray[currentImageSpot];
+                    canvasPic.onload = function () { 
+                        ctx.drawImage(canvasPic, 0, 0); 
+                        sketch2real();
+                    }
+                }
+            }
+            function imageRedo(){
+                if(currentImageSpot < imageArray.length-1){
+                    currentImageSpot++;
+                    var canvasPic = new Image();
+                    canvasPic.src = imageArray[currentImageSpot];
+                    canvasPic.onload = function(){
+                        ctx.drawImage(canvasPic,0,0);
+                        sketch2real();
+                    }
+                }
+            }
             function onDocumentMouseDown(event){
-                event.preventDefault();
+                //event.preventDefault();
                 clicked = true;
+                lastx = event.offsetX;
+                lasty = event.offsetY;
             }
             function onDocumentMouseUp(event){
-                event.preventDefault();
+                //event.preventDefault();
                 clicked = false;
-
+                
                 // Lots of help from https://stackoverflow.com/questions/54168580/sending-image-from-html-canvas-to-flask-python-not-working
                 // and https://stackoverflow.com/questions/54733662/how-to-send-html-data-to-flask-without-form
-                sketch2real();
+                if(changesMade){
+                    sketch2real();
+                    imagePush();
+                    changesMade = false;
+                }
+            }
+            function setDrawingColor(c){
+                console.log(c);
+                hex_color = rgb2hex(c);
+                ctx.fillStyle = hex_color;
+                ctx.strokeStyle = hex_color;
             }
             document.addEventListener('mousedown', onDocumentMouseDown, false);
             document.addEventListener('mouseup', onDocumentMouseUp, false);
             $(document).ready(function(){
+                imagePush();
                 sketch2real();
             });
-            var myVar = setInterval(realtimeUpdate, 500);
+
+            // var myVar = setInterval(realtimeUpdate, 500);
         </script>
     </body>
 </html>
