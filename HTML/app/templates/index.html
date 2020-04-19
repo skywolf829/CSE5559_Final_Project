@@ -44,7 +44,10 @@
                     <td align="center">
                         Brush size: <a id="brushSizeText">20</a><input type="range" min="1" max="100" value="20" class="slider" id="brushSizeSlider">
                         <br>
-                        Input shape: <select id="inputShape"><option id="line" value="line">Line</option><option id="square" value="square">Square</option></select>
+                        Input shape: <select id="inputShape">
+                            <option id="circle" value="circle">Circle</option>
+                            <option id="square" value="square">Square</option>
+                        </select>
                     </td>
                     <td align="center"></td>
                 </tr>
@@ -67,13 +70,18 @@
                     <td align="center" id="comparisonMetrics"></td>
                     <td align="center">Image 2<br><img id="img2" width="128" height="128" style="border:1px" src=""></img></td>
                 </tr>
+            </tbody>
+        </table>
+        <table>
+            <tbody>
                 <tr>
-                    <td align="center"></td>
+                    <td width="10%"></td>
                     <td align="center"><canvas id="ssim_chart" width="250" height="250" style="border:1px"></canvas></td>
-                    <td align="center"></td>
+                    <td width="10%"></td>
                     <td align="center"><canvas id="mse_chart" width="250" height="250" style="border:1px"></canvas></td>
-                    <td align="center"></td>
+                    <td width="10%"></td>
                     <td align="center"><canvas id="fd_chart" width="250" height="250" style="border:1px"></canvas></td>
+                    <td width="10%"></td>
                 </tr>
             </tbody>
         </table>
@@ -109,7 +117,6 @@
             var ctx = canvas.getContext("2d");
             var imageArray = new Array();
             var generatedImageArray = new Array();
-            var featuresArray = new Array();
             var currentImageSpot = -1;
             var clicked = false;
             var changesMade = false;
@@ -206,7 +213,6 @@
                     }
                 }
             });
-
             var fd_line_chart = new Chart(fd_chart.getContext("2d"), {
                 type: 'line',
                 data: {
@@ -250,24 +256,33 @@
             });
 
             var lastx, lasty;
+            function lerp(first, second, fraction){
+                return first * (1-fraction) + second * fraction;
+            }
             canvas.addEventListener('mousemove', function(event) {
                 if(clicked){ 
                     x = event.offsetX;
                     y = event.offsetY;
                     if(x > -size / 2 && x < 256+size/2 && y > -size / 2 && y < 256 + size / 2){
                         changesMade = true;
-                        if(document.getElementById("square").selected){                        
-                            ctx.fillRect(Math.round(x-size/2), Math.round(y-size/2), size, size);
+                        if(document.getElementById("square").selected){                 
+                            for(var i = 0; i <= 10; i++){       
+                                newX = lerp(lastx, x, i/10);    
+                                newY = lerp(lasty, y, i/10);
+                                ctx.fillRect(Math.round(newX-size/2), Math.round(newY-size/2), size, size);
+                            }
                         }
-                        else if(document.getElementById("line").selected){
-                            ctx.beginPath();
-                            ctx.lineWidth = size;
-                            ctx.lineJoin = "round";
-                            ctx.lineCap = "round";
-                            ctx.moveTo(lastx, lasty);
-                            ctx.lineTo(x, y);
-                            ctx.closePath();
-                            ctx.stroke();
+                        else if(document.getElementById("circle").selected){
+                            for(var k = 0; k <= 10; k++){   
+                                newX = lerp(lastx, x, k/10);    
+                                newY = lerp(lasty, y, k/10);
+                                for(var i = Math.round(newX - size/2); i < Math.round(newX + size/2); i++){
+                                    for(var j = Math.round(newY - size/2); j < Math.round(newY + size/2); j++){
+                                        if(Math.sqrt(Math.pow(newX-i, 2) + Math.pow(newY-j, 2)) <= Math.round(size/2))
+                                            ctx.fillRect(i, j, 1, 1);
+                                    }
+                                } 
+                            }                           
                         }
                     }
                     lastx = x;
@@ -343,7 +358,7 @@
                         success: function(response) {
                             bytes = Uint8Array.from(response, c => c.charCodeAt(0));
                             features = new Float32Array(bytes.buffer);
-                            featuresArray.push(features)
+                            return features;
                         },
                     });
                 }
