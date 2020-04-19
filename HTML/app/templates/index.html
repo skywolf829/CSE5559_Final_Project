@@ -332,6 +332,26 @@
                 document.getElementById("img2").src = generatedImageArray[img2];
                 updateMetrics();
             }
+            function getVisualFeatures(){
+                if(currentImageSpot >= 0){
+                    $.ajax({
+                        url: "/get_visual_features",
+                        type: "get",
+                        data: {
+                            img: generatedImageArray[currentImageSpot]
+                        },
+                        success: function(response) {
+                            console.log(response);
+                            //response = response.substring(2, response.length-1);
+                            
+                            bytes = Uint8Array.from(response, c => c.charCodeAt(0));
+                            console.log(bytes);
+                            features = new Float32Array(bytes.buffer);
+                            console.log(features)
+                        },
+                    });
+                }
+            }
             function updateMetrics(){
                 if(img1 != null && img2 != null){
                     $.ajax({
@@ -386,7 +406,6 @@
             function realtimeUpdate(){
                 if(clicked && changesMade){
                     sketch2real();
-                    get_visual_features();
                 }
             }
 
@@ -416,7 +435,6 @@
                     canvasPic.onload = function () { 
                         ctx.drawImage(canvasPic, 0, 0); 
                         sketch2real();
-                        get_visual_features();
                     }
                 }
             }
@@ -428,7 +446,6 @@
                     canvasPic.onload = function(){
                         ctx.drawImage(canvasPic,0,0);
                         sketch2real();
-                        get_visual_features();
                     }
                 }
             }
@@ -446,13 +463,12 @@
                 // and https://stackoverflow.com/questions/54733662/how-to-send-html-data-to-flask-without-form
                 if(changesMade){
                     sketch2real();
+                    getVisualFeatures();
                     imagePush();
-                    get_visual_features();
                     changesMade = false;
                 }
             }
             function setDrawingColor(c){
-                console.log(c);
                 hex_color = rgb2hex(c);
                 ctx.fillStyle = hex_color;
                 ctx.strokeStyle = hex_color;
@@ -462,7 +478,6 @@
             $(document).ready(function(){
                 imagePush();
                 sketch2real();
-                get_visual_features();
             });
 
             // var myVar = setInterval(realtimeUpdate, 500);

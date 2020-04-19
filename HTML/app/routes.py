@@ -58,16 +58,22 @@ def get_generated_image():
     return flask.jsonify({"img":str(base64.b64encode(return_img))})
 
 @app.route('/get_visual_features')
-def get_generated_image():
+def get_visual_features():
     sent_data = flask.request.args.get('img')
     encoded_data = sent_data.split(',')[1]
     decoded_data = base64.b64decode(encoded_data)
     import io
     img = Image.open(io.BytesIO(decoded_data))
     img = np.asarray(img)[:,:,0:3].astype(np.uint8)
-    features = extract.get_visual_features(img)
-    features = features.tobytes()
-    return flask.jsonify({"features":str(base64.b64encode(features))})
+    features = extract.get_visual_features(img).astype(np.float32)
+    features_list = features.tolist()
+    print(len(features_list))
+    response = flask.make_response(features.tobytes())
+    import struct
+    response_list = struct.pack('f' * len(features_list), *features_list)
+    print(response_list)
+    #response.headers.set('Content-Type', 'application/octet-stream')
+    return response_list
 
 @app.route('/get_image_metrics')
 def get_image_metrics():
