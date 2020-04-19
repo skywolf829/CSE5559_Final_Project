@@ -1,5 +1,5 @@
 # CSE5559_Final_Project
-The final project for CSE 5559 by team VisAiR with members Skylar Wurster (wurster.18@osu.edu), Logan Frank, and Njoki Mwagni.
+The final project for CSE 5559 by team VisAiR with members Skylar Wurster (wurster.18@osu.edu), Logan Frank (frank.580@osu.edu), and Njoki Mwagni.
 
 # Introduction
 This is a VISxAI project that follows this sequence of events:
@@ -60,3 +60,9 @@ This folder is responsible for running the application via flask.
 - `SPADE/ade20k_cmap.txt` holds color mapping information for the segmentation. GAUGAN takes a (256x256x1) input, but a grayscale segmentation map wouldn't be very fun to draw, and would be very difficult to differentiate similar gray colors. Therefore, we color map 0-255 grayscale to RGB. These mappings are saved in this text document, which also has the class names.
 
 For the rest of the files and structure, please see SPADE/README.md.
+
+### CNN
+
+- `CNN/extract.py` is for extracting the visual features from an input image. When this file is imported, a ResNet-18-Dilated model is loaded using the weights provided by the ADE20K authors to be used for extracting the features. The only method in the file is `get_visual_features` which takes a (x, y, 3) RGB NumPy array and returns a (512) NumPy array that is the visual features for the provided input image.
+- `CNN/models/models.py` is what `CNN/extract.py` uses to construct the model. Specifically the `build_encoder` method in the `ModelBuilder` class constructs the network and loads the pretrained weights.
+- `CNN/networks/ade20k-resnet18dilated-ppm_deepsup.pth` contains the weights used in our encoder network.
