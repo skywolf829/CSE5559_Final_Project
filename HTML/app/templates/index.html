@@ -341,13 +341,9 @@
                             img: generatedImageArray[currentImageSpot]
                         },
                         success: function(response) {
-                            console.log(response);
-                            //response = response.substring(2, response.length-1);
-                            
                             bytes = Uint8Array.from(response, c => c.charCodeAt(0));
-                            console.log(bytes);
                             features = new Float32Array(bytes.buffer);
-                            console.log(features)
+                            featuresArray.push(features)
                         },
                     });
                 }

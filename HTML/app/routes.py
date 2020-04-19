@@ -66,14 +66,11 @@ def get_visual_features():
     img = Image.open(io.BytesIO(decoded_data))
     img = np.asarray(img)[:,:,0:3].astype(np.uint8)
     features = extract.get_visual_features(img).astype(np.float32)
-    features_list = features.tolist()
-    print(len(features_list))
-    response = flask.make_response(features.tobytes())
-    import struct
-    response_list = struct.pack('f' * len(features_list), *features_list)
-    print(response_list)
-    #response.headers.set('Content-Type', 'application/octet-stream')
-    return response_list
+    features = features.tobytes()
+    features = ''.join([chr(b) for b in features])
+    response = flask.make_response(features)
+    response.headers.set('Content-Type', 'application/octet-stream')
+    return response
 
 @app.route('/get_image_metrics')
 def get_image_metrics():
