@@ -72,6 +72,8 @@
                     <td align="center"><canvas id="ssim_chart" width="250" height="250" style="border:1px"></canvas></td>
                     <td align="center"></td>
                     <td align="center"><canvas id="mse_chart" width="250" height="250" style="border:1px"></canvas></td>
+                    <td align="center"></td>
+                    <td align="center"><canvas id="fd_chart" width="250" height="250" style="border:1px"></canvas></td>
                 </tr>
             </tbody>
         </table>
@@ -102,10 +104,12 @@
             var shapeSelector = document.getElementById("inputShape");
             var ssim_chart = document.getElementById("ssim_chart");
             var mse_chart = document.getElementById("mse_chart");
+            var fd_chart = document.getElementById("fd_chart");
 
             var ctx = canvas.getContext("2d");
             var imageArray = new Array();
             var generatedImageArray = new Array();
+            var featuresArray = new Array();
             var currentImageSpot = -1;
             var clicked = false;
             var changesMade = false;
@@ -182,6 +186,48 @@
                     title: {
                         display: true,
                         text: 'SSIM'
+                    },
+                    legend: {
+                        display: false
+                    },
+                    scales:{
+                        xAxes: [{
+                            display: false, //this will remove all the x-axis grid lines
+                            ticks: {
+                                display: false //this will remove only the label
+                            }
+                        }],
+                        yAxes: [{
+                            ticks: {
+                                beginAtZero: true,
+                                suggestedMax: 1
+                            }
+                        }]
+                    }
+                }
+            });
+
+            var fd_line_chart = new Chart(fd_chart.getContext("2d"), {
+                type: 'line',
+                data: {
+                    labels: [],
+                    datasets: [
+                        {
+                            label: "512-Dim Feature Distance",
+                            fillColor: "rgba(151,187,205,0.2)",
+                            strokeColor: "rgba(151,187,205,1)",
+                            pointColor: "rgba(151,187,205,1)",
+                            pointStrokeColor: "#fff",
+                            pointHighlightFill: "#fff",
+                            pointHighlightStroke: "rgba(151,187,205,1)",
+                            data: []
+                        }
+                    ]
+                },
+                options:{
+                    title: {
+                        display: true,
+                        text: 'Feature Distance'
                     },
                     legend: {
                         display: false
@@ -298,30 +344,41 @@
                         success: function(response) {
                             var ssim = Number(response['ssim']).toFixed(2);
                             var mse = Number(response['mse']).toFixed(2);
+                            var feature_distance = Number(response['fd']).toFixed(2);
 
-                            document.getElementById("comparisonMetrics").innerHTML = "SSIM: " + ssim + "<br>MSE: " + mse;
+                            document.getElementById("comparisonMetrics").innerHTML = "SSIM: " + ssim + "<br>MSE: " + mse + "<br>Feature Distance: " + feature_distance;
                             //ssim_line_chart.data.labels.push(generatedImageArray.length-2);
                             ssim_line_chart.data.labels.push("Images " + img1 + " and " + img2);
                             mse_line_chart.data.labels.push("Images " + img1 + " and " + img2);
+                            fd_line_chart.data.labels.push("Images: " + img1 + " and " + img2);
+
                             ssim_line_chart.data.datasets.forEach((dataset) => {
                                 dataset.data.push(ssim);
                             });
                             mse_line_chart.data.datasets.forEach((dataset) => {
                                 dataset.data.push(mse);
                             });
+                            fd_line_chart.data.datasets.forEach((dataset) => {
+                                dataset.data.push(feature_distance);
+                            });
 
                             if(ssim_line_chart.data.labels.length > 20){
                                 ssim_line_chart.data.labels.shift();
                                 mse_line_chart.data.labels.shift();
+                                fd_line_chart.data.labels.shift();
                                 ssim_line_chart.data.datasets.forEach((dataset) => {
                                     dataset.data.shift();
                                 });
                                 mse_line_chart.data.datasets.forEach((dataset) => {
                                     dataset.data.shift();
                                 });
+                                fd_line_chart.data.datasets.forEach((dataset) => {
+                                    dataset.data.shift();
+                                });
                             }
                             ssim_line_chart.update();
                             mse_line_chart.update();
+                            fd_line_chart.update();
                         },                    
                     });
                 }
@@ -329,6 +386,7 @@
             function realtimeUpdate(){
                 if(clicked && changesMade){
                     sketch2real();
+                    get_visual_features();
                 }
             }
 
@@ -358,6 +416,7 @@
                     canvasPic.onload = function () { 
                         ctx.drawImage(canvasPic, 0, 0); 
                         sketch2real();
+                        get_visual_features();
                     }
                 }
             }
@@ -369,6 +428,7 @@
                     canvasPic.onload = function(){
                         ctx.drawImage(canvasPic,0,0);
                         sketch2real();
+                        get_visual_features();
                     }
                 }
             }
@@ -387,6 +447,7 @@
                 if(changesMade){
                     sketch2real();
                     imagePush();
+                    get_visual_features();
                     changesMade = false;
                 }
             }
@@ -401,6 +462,7 @@
             $(document).ready(function(){
                 imagePush();
                 sketch2real();
+                get_visual_features();
             });
 
             // var myVar = setInterval(realtimeUpdate, 500);

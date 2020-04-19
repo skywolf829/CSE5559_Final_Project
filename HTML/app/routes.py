@@ -57,6 +57,18 @@ def get_generated_image():
     return_img = return_img.tobytes()
     return flask.jsonify({"img":str(base64.b64encode(return_img))})
 
+@app.route('/get_visual_features')
+def get_generated_image():
+    sent_data = flask.request.args.get('img')
+    encoded_data = sent_data.split(',')[1]
+    decoded_data = base64.b64decode(encoded_data)
+    import io
+    img = Image.open(io.BytesIO(decoded_data))
+    img = np.asarray(img)[:,:,0:3].astype(np.uint8)
+    features = extract.get_visual_features(img)
+    features = features.tobytes()
+    return flask.jsonify({"features":str(base64.b64encode(features))})
+
 @app.route('/get_image_metrics')
 def get_image_metrics():
     sent_data_1 = flask.request.args.get('img1')
@@ -73,4 +85,9 @@ def get_image_metrics():
 
     ssim_result = ssim(img1, img2, multichannel=True)
     mse = np.mean((img1 - img2) ** 2) ** 0.5
-    return flask.jsonify({"mse":str(mse), "ssim":str(ssim_result)})
+
+    img1_features = extract.get_visual_features(img1)
+    img2_features = extract.get_visual_features(img2)
+    feature_distance = np.sqrt(np.mean((img1_features - img2_features) ** 2))
+
+    return flask.jsonify({"mse":str(mse), "ssim":str(ssim_result), "fd":str(feature_distance)})
