@@ -73,17 +73,23 @@ For the rest of the files and structure, please see SPADE/README.md.
 # Small changes, big impact
 
 // Introduce the topic, ex:
+
 With the recent improvements in generative adversarial networks (GANs), many networks have come about that allow for generation of realistic images. They do this using a generator-discriminator pair. The generator's goal is to generate convincing looking images that will "fool" the discriminator, and the discriminator is learning real from fake images.
 
 Some create cars, some create human faces, and some create cats! Here are some examples:
+
 // Insert example images
 
 Some GANs are specifically trained to generate an output image from an input sketch or segmentation map. A  segmentation map is simply an image where each pixel color corresponds to a specific class, like "grass", or "sky" or "table". Here is an example of a segmentation map, and the corresponding actual photo:
+
 // Insert segmentation image example
 
 Some fun tools online allow you draw sketches and see the output, without having to run the network on your own machine! 
+
 // Insert links here
+
 Another GAN that won a few awards at SIGGRAPH 2019 is called GAUGAN, which was trained on an unreleased Flickr landscapes dataset. We find this one particularly interesting because it is lightweight and allows us to see changes to the output image (after drawing) reasonably quickly on new hardware.
+
 // Insert images of GAUGAN generations
 
 // Talk about image captioning here
@@ -93,6 +99,7 @@ With these two new advances, we were curious - what changes in our input to a ge
 To allow the users to see how much their changes have an impact on the output, we will also show metrics between any two previous images, such as MSE, SSIM, and feature distance, measured by a feature extracting network.
 
 // Finished with introduction 
+
 // Next, talk about the backend networks
 
 
