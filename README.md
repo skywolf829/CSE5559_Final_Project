@@ -66,3 +66,39 @@ For the rest of the files and structure, please see SPADE/README.md.
 - `CNN/extract.py` is for extracting the visual features from an input image. When this file is imported, a ResNet-18-Dilated model is loaded using the weights provided by the ADE20K authors to be used for extracting the features. The only method in the file is `get_visual_features` which takes a (x, y, 3) RGB NumPy array and returns a (512) NumPy array that is the visual features for the provided input image.
 - `CNN/models/models.py` is what `CNN/extract.py` uses to construct the model. Specifically the `build_encoder` method in the `ModelBuilder` class constructs the network and loads the pretrained weights.
 - `CNN/networks/ade20k-resnet18dilated-ppm_deepsup.pth` contains the weights used in our encoder network.
+
+========================================================================================================================================
+========================================================================================================================================
+========================================================================================================================================
+# Small changes, big impact
+
+// Introduce the topic, ex:
+With the recent improvements in generative adversarial networks (GANs), many networks have come about that allow for generation of realistic images. They do this using a generator-discriminator pair. The generator's goal is to generate convincing looking images that will "fool" the discriminator, and the discriminator is learning real from fake images.
+
+Some create cars, some create human faces, and some create cats! Here are some examples:
+// Insert example images
+
+Some GANs are specifically trained to generate an output image from an input sketch or segmentation map. A  segmentation map is simply an image where each pixel color corresponds to a specific class, like "grass", or "sky" or "table". Here is an example of a segmentation map, and the corresponding actual photo:
+// Insert segmentation image example
+
+Some fun tools online allow you draw sketches and see the output, without having to run the network on your own machine! 
+// Insert links here
+Another GAN that won a few awards at SIGGRAPH 2019 is called GAUGAN, which was trained on an unreleased Flickr landscapes dataset. We find this one particularly interesting because it is lightweight and allows us to see changes to the output image (after drawing) reasonably quickly on new hardware.
+// Insert images of GAUGAN generations
+
+// Talk about image captioning here
+
+With these two new advances, we were curious - what changes in our input to a generative image network would create large changes in our output image and caption? To test this, we use NVidia's GAUGAN for the generator network and _________ for the captioning network. We create a interactive browser based HTML page to draw the segmentation map and view outputs, a python backend to run all of our models, and flask to tie the front and backend together.
+
+To allow the users to see how much their changes have an impact on the output, we will also show metrics between any two previous images, such as MSE, SSIM, and feature distance, measured by a feature extracting network.
+
+// Finished with introduction 
+// Next, talk about the backend networks
+
+
+// Next, talk about the frontend and how it uses flask to get info from the backend
+
+
+// Done talking about the GUI, now we should talk about interesting results 
+
+// Discussion and things to try (future work)
