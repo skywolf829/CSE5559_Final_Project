@@ -7,5 +7,4 @@ SPADE/datasets/
 *.zip
 *.pkl
 *.pyc
-*.json
 .vscode
