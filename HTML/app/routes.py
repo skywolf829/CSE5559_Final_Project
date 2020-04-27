@@ -11,6 +11,7 @@ sys.path.append(SPADE_folder_path)
 sys.path.append(os.getcwd())
 sys.path.append(os.path.join(os.getcwd(), 'HTML'))
 sys.path.append(os.path.join(os.getcwd(), 'CNN'))
+sys.path.append(os.path.join(os.getcwd(), 'LSTM'))
 
 ## Random Imports
 import flask
@@ -24,6 +25,8 @@ from skimage.measure import compare_ssim as ssim
 from app import app
 from generate import *
 import extract
+import caption
+
 
 # Comment the below line out and insert wherever needed
 # visual_features = extract.get_visual_features(generated_img)
@@ -71,6 +74,17 @@ def get_visual_features():
     response = flask.make_response(features)
     response.headers.set('Content-Type', 'application/octet-stream')
     return response
+
+@app.route('/get_caption')
+def get_caption():
+    # TODO: Don't know if this works or not because of JS globals
+    features = flask.request.args.get('features')
+    features = features.split(',')[1]
+    features = base64.b64decode(features)
+    import io
+    features = np.frombuffer(io.BytesIO(features))
+    img_caption = caption.caption_image(features)
+    return flask.jsonify({"caption" : str(img_caption)})
 
 @app.route('/get_image_metrics')
 def get_image_metrics():

@@ -363,6 +363,21 @@
                     });
                 }
             }
+            // TODO: Don't know if this will work because I can't figure out JS globals
+            function getCaption(){
+                if(currentImageSpot >= 0){
+                    $.ajax({
+                        url: "/get_caption",
+                        type: "get",
+                        data: {
+                            features: featuresArray[currentImageSpot] // change
+                        },
+                        success: function(response) {
+                            currentCaption = String(response['caption']);
+                        },
+                    });
+                }
+            }
             function updateMetrics(){
                 if(img1 != null && img2 != null){
                     $.ajax({
