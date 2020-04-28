@@ -74,14 +74,14 @@ pip install "git+https://github.com/philferriere/cocoapi.git#egg=pycocotools&sub
 
 ### Install ade20k checkpoint for SPADE
 Download the tar of the pretrained models from the [Google Drive Folder](https://drive.google.com/file/d/12gvlTbMvUcJewQlSEaZdeb2CdOB-b8kQ/view?usp=sharing), save it in 'SPADE/checkpoints/', and run
-
-### Set up CNN weights
-Downlost the encoder, decoder, and vocab pickle files from ADD_LINK_HERE. Then, place the encoder .pkl file into CNN/models, the decoder pkl into LSTM/models, and covab.pkl into LSTM/data
-
 ```
 cd checkpoints
 tar xvf checkpoints.tar.gz
 ```
+### Set up CNN weights
+Downlost the encoder, decoder, and vocab pickle files from ADD_LINK_HERE. Then, place the encoder .pkl file into CNN/models, the decoder pkl into LSTM/models, and covab.pkl into LSTM/data
+
+
 
 ## Running the code
 After proper installation, navigate to the base folder and run 
