@@ -1,8 +1,7 @@
 # CSE5559_Final_Project
 The final project for CSE 5559 by team VisAiR with members Skylar Wurster (wurster.18@osu.edu), Logan Frank (frank.580@osu.edu), and Njoki Mwagni.
 
-# Small changes, big impact
-
+# Intro
 // Introduce the topic, ex:
 
 With the recent improvements in generative adversarial networks (GANs), many networks have come about that allow for generation of realistic images. They do this using a generator-discriminator pair. The generator's goal is to generate convincing looking images that will "fool" the discriminator, and the discriminator is learning real from fake images.
