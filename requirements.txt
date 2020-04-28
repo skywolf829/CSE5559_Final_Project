@@ -9,3 +9,4 @@ opencv-python
 PyYAML
 pillow=6.1.0
 numpy
+nltk
