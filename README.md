@@ -63,9 +63,20 @@ Navigate to https://pytorch.org/, select your configuration, and run the command
 ```
 pip install torch===1.4.0 torchvision===0.5.0 -f https://download.pytorch.org/whl/torch_stable.html
 ```
+If you're runing on a unix based system, install pycocotools with:
+```
+pip install pycocotools
+```
+Otherwise on Windows, you'll have to install it with this command:
+```
+pip install "git+https://github.com/philferriere/cocoapi.git#egg=pycocotools&subdirectory=PythonAPI"
+```
 
 ### Install ade20k checkpoint for SPADE
 Download the tar of the pretrained models from the [Google Drive Folder](https://drive.google.com/file/d/12gvlTbMvUcJewQlSEaZdeb2CdOB-b8kQ/view?usp=sharing), save it in 'SPADE/checkpoints/', and run
+
+### Set up CNN weights
+Downlost the encoder, decoder, and vocab pickle files from ADD_LINK_HERE. Then, place the encoder .pkl file into CNN/models, the decoder pkl into LSTM/models, and covab.pkl into LSTM/data
 
 ```
 cd checkpoints
