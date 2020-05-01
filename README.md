@@ -5,17 +5,20 @@ The final project for CSE 5559 by team VisAiR with members Skylar Wurster (wurst
 With the recent improvements in generative adversarial networks (GANs), many networks have come about that allow for generation of realistic images. They do this using a generator-discriminator pair. The generator's goal is to generate convincing looking images that will "fool" the discriminator, and the discriminator is learning real from fake images.
 Some create cars, some create human faces, and some create cats! Here are some examples:
 
-![unavailable](https://github.com/skywolf829/CSE5559_Final_Project/blob/master/Images/GeneratedCat.png?raw=true)*A generated cat from a sketch*
+![unavailable](https://github.com/skywolf829/CSE5559_Final_Project/blob/master/Images/GeneratedCat.png?raw=true)
 ![unavailable](https://github.com/skywolf829/CSE5559_Final_Project/blob/master/Images/GeneratedFace.png?raw=true)
+*A generated cat from a sketch and face generated from noise.*
 
 Some GANs are specifically trained to generate an output image from an input sketch or segmentation map. A segmentation map is simply an image where each pixel color corresponds to a specific class, like "grass", or "sky" or "table". Here is an example of a segmentation map, and the corresponding actual photo:
 
 ![unavailable](https://github.com/skywolf829/CSE5559_Final_Project/blob/master/Images/SegmentationMapGT.png?raw=true)
 ![unavailable](https://github.com/skywolf829/CSE5559_Final_Project/blob/master/Images/SegmentationMapExample.png?raw=true)
+*A segmentation map for a corresponding image. Notice how the segmentation map is hard to see, because it is single channel, meaning every class is a shade of gray!*
 
 Some fun tools online allow you to draw sketches and see the output, without having to run the network on your own machine!
 
 ![unavailable](https://github.com/skywolf829/CSE5559_Final_Project/blob/master/Images/GAUGANInterface.png?raw=true)
+*The web-based interface for GAUGAN, NVidia's award winning GAN presented in SIGGRAPH 2019*
 
 Another GAN that won a few awards at SIGGRAPH 2019 is called GAUGAN, which was trained on an unreleased Flickr landscapes dataset. We find this one particularly interesting because it is lightweight and allows us to see changes to the output image (after drawing) reasonably quickly on new hardware. You can find the interactive demo [here](http://nvidia-research-mingyuliu.com/gaugan/).
 
@@ -26,6 +29,7 @@ Some current image-captioning systems employ an encoder-decoder paradigm. A CNN-
 With these two new advances - in GANs and automatic image captioning -  we were curious: what changes in our input to a generative image network would create large changes in our output image and caption? Would small changes vastly affect the output image? Or would it affect the caption more than the image? To test these questions, we use NVidia's GAUGAN (based on Pix2pix with a new SPADE normalization/denormalization layer) for the generator network and ResNet-152 for the captioning network. We create an interactive browser based HTML page to draw the segmentation map and view outputs, a Python+PyTorch backend to run all of our models, and use flask to tie the front and backend together.
 
 ![unavailable](https://github.com/skywolf829/CSE5559_Final_Project/blob/master/Images/ProjectPipeline.png?raw=true)
+*The proposed pipeline: Sketch a segmentation map, see it as a real picture, then look at the caption*
 
 To allow the users to see how much their changes have an impact on the output, we will also show metrics between any two previous images, such as MSE, SSIM, and feature distance, measured by a feature extracting network.
 
@@ -38,6 +42,7 @@ Our generator network must be created first, so that our captioning network can 
 The image-captioning task consists of two sub-problems, image classification and sequence modelling, which are addressed using existing solutions to each sub-problem, a convolution neural network(CNN) and a recurrent neural network (LSTM) respectively. The CNN creates a feature vector representation of the image and the feature vector is used as input to the LSTM, which generates the caption.
 
 ![unavailable](https://github.com/skywolf829/CSE5559_Final_Project/blob/master/Images/CaptioningPipeline.png?raw=true)
+*Image captioning using encoder-decoder architecture*
 
 ### Models & Datasets
 
@@ -81,26 +86,31 @@ def get_cmap(N):
 This way, we’re drawing with visually appealing colors instead of indistinguishable shades of gray.
 
 ![unavailable](https://github.com/skywolf829/CSE5559_Final_Project/blob/master/Images/drawingAndSelectingClasses.gif?raw=true)
+*Segmentation classes can be selected on the left in the scrollpane and drawn in the canvas*
 
 We encountered smoothing/anti-aliasing issues using the standard line drawing functionality, because colors would get blended. Suppose we had some pretrained model that had just two classes, and we gave class 1 a segmentation map color of red (255,0,0) and class 2 a segmentation map color of blue (0,0,255). As it turns out, the line drawing functionality attempts to smooth the corners of drawn lines, so if I draw class 2 on top of class 1, there might be pixels that are (127,0,127), which doesn’t exist in our mapping. For that reason, we couldn’t use that functionality and had to write our own line drawing, which just interpolates 10 points on the line between the last cursor location and the current one, and draws the shape at each point without smoothing.
 
 Due to the lightweight nature of our models, we were able to run our GUI in real-time, to an extent. Whenever the user lets go of the mouse button, the output image and caption are updated within a quarter second. We experimented with true real-time generation, but it became unclear how the undo/redo functionality would work with that addition.
 
 ![unavailable](https://github.com/skywolf829/CSE5559_Final_Project/blob/master/Images/fullDemo.gif?raw=true)
+*A full demo showing the realtime updates of the image and metrics on the browser*
 
 The GUI also hosts 3 graphs as well as a full history of generated images. The current metrics shown will always be between the last two images generated, unless the user selected a different image. You can tell which images are selected by examining which ones are highlighted in yellow. A different image can be selected by clicking one from the list. This will update the reported metrics as the distance between the two selected images. The graphs below show the sequence of the last 20 selections. By default, this will show the metrics changing over time as you make additions. You can hover over a single data point on any graph to see which two images created that metric, and then you can select those to be shown by clicking on them in the image history panel.
 
 ![unavailable](https://github.com/skywolf829/CSE5559_Final_Project/blob/master/Images/metrics.gif?raw=true)
+*A closer look at the metrics section. We are able to select any previously created image in the scrollpane on the left. Selected items are highlighted*
 
 ## Interesting captions
 
 ![unavailable](https://github.com/skywolf829/CSE5559_Final_Project/blob/master/Images/BusRoadTrafficLight.png?raw=true)
+*Images and captions generated for an outdoor scene with a road, bus, and traffic light, at each point in the process*
 
 With our working project, we went to test out our questions posed in the beginning. How well does an image captioning network caption generated images? Do small changes in our input segmentation map create large changes in the output image or caption?
 
 Let’s walk through the image above: the caption for image 1b, above, fails to correctly identify objects, though its estimation isn’t far from what you might see (sans the kite); the caption for 2b misidentifies the location, and the caption for 3b identifies the location and the bus, but not the traffic light. The improvement of captions with the population of objects is also apparent in indoor scenes.
 
 ![unavailable](https://github.com/skywolf829/CSE5559_Final_Project/blob/master/Images/WallRugBed.png?raw=true)
+*The segmentation map and corresponding generated image*
 
 The image above was captioned as “a bed with a blanket on top of it.” The drawing was constructed in the following order: (1) wall, (2) rug, (3) bed, and the generated mid-drawing images were captioned as the following:
 1. a man is playing tennis on a tennis court;
@@ -108,6 +118,7 @@ The image above was captioned as “a bed with a blanket on top of it.” The dr
 
 
 ![unavailable](https://github.com/skywolf829/CSE5559_Final_Project/blob/master/Images/TreePositioning.png?raw=true)
+*An example of how drawing location can affect the outcome caption and image*
 
 One might also wonder how the location of objects changes the caption or output. Above, we have two very similar segmentation maps. The mustard color is sky, the green color is grass, and the purple color is trees. We place trees in the background above, and trees in the foreground below.
 
@@ -121,6 +132,7 @@ With these noted, we are surprised to see that the bottom image was captioned �
 Because of ade20k’s large number of classes, we thought it would be interesting to see what would happen if we put a class in an area where it typically wouldn’t belong, such as a “door” in the middle of the “sky”. 
 
 ![unavailable](https://github.com/skywolf829/CSE5559_Final_Project/blob/master/Images/TruckOnGrass.png?raw=true)
+*Image and caption generated for an inordinary scene of a truck on grass*
 
 In the example above, we put a car in a field. The output image isn’t anything convincing; a human might be able to recognize that as a truck/car looking object in a field. But interestingly, the image captioning network was so sure of the truck, that it thought it must have been in a parking lot, since obviously trucks can’t be on grass! This may be due to a lack of abstraction by the captioning network. Natural images taken from everyday scenes wouldn’t have this kind of relationship unless the dataset was constructed purposefully to make this issue less of a problem. This may point to an interesting usefulness for this GAN. If an algorithm could be used to caption segmentation maps, then we could use the GAN to generate real images from that segmentation map, and then add that new <image, caption> pair to the training data for the original image captioning network. This way, we could create scenes that aren’t “natural”, strictly speaking.
 
