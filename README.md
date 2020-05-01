@@ -125,6 +125,7 @@ Let’s walk through the image above: the caption for image 1b, above, fails to 
 The image above was captioned as “a bed with a blanket on top of it.” The drawing was constructed in the following order: (1) wall, (2) rug, (3) bed, and the generated mid-drawing images were captioned as the following:
 1. a man is playing tennis on a tennis court;
 2. a large window with a glass vase on it.
+3. a bed with a blanket on top of it
 
 
 ![unavailable](https://github.com/skywolf829/CSE5559_Final_Project/blob/master/Images/TreePositioning.png?raw=true)
