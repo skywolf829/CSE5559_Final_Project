@@ -5,8 +5,8 @@ The final project for CSE 5559 by team VisAiR with members Skylar Wurster (wurst
 With the recent improvements in generative adversarial networks (GANs), many networks have come about that allow for generation of realistic images. They do this using a generator-discriminator pair. The generator's goal is to generate convincing looking images that will "fool" the discriminator, and the discriminator is learning real from fake images.
 Some create cars, some create human faces, and some create cats! Here are some examples:
 
-![unavailable] (https://github.com/skywolf829/CSE5559_Final_Project/tree/master/Images/GeneratedCat.png)
-![unavailable] (https://github.com/skywolf829/CSE5559_Final_Project/tree/master/Images/GeneratedFace.png)
+![unavailable](https://github.com/skywolf829/CSE5559_Final_Project/tree/master/Images/GeneratedCat.png)
+![unavailable](https://github.com/skywolf829/CSE5559_Final_Project/tree/master/Images/GeneratedFace.png)
 
 Some GANs are specifically trained to generate an output image from an input sketch or segmentation map. A segmentation map is simply an image where each pixel color corresponds to a specific class, like "grass", or "sky" or "table". Here is an example of a segmentation map, and the corresponding actual photo:
 
