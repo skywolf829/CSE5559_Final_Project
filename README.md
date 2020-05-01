@@ -80,17 +80,17 @@ def get_cmap(N):
 
 This way, we’re drawing with visually appealing colors instead of indistinguishable shades of gray.
 
-![unavailable](https://github.com/skywolf829/CSE5559_Final_Project/blob/master/Images/missing.gif?raw=true)
+![unavailable](https://github.com/skywolf829/CSE5559_Final_Project/blob/master/Images/drawingAndSelectingClasses.gif?raw=true)
 
 We encountered smoothing/anti-aliasing issues using the standard line drawing functionality, because colors would get blended. Suppose we had some pretrained model that had just two classes, and we gave class 1 a segmentation map color of red (255,0,0) and class 2 a segmentation map color of blue (0,0,255). As it turns out, the line drawing functionality attempts to smooth the corners of drawn lines, so if I draw class 2 on top of class 1, there might be pixels that are (127,0,127), which doesn’t exist in our mapping. For that reason, we couldn’t use that functionality and had to write our own line drawing, which just interpolates 10 points on the line between the last cursor location and the current one, and draws the shape at each point without smoothing.
 
 Due to the lightweight nature of our models, we were able to run our GUI in real-time, to an extent. Whenever the user lets go of the mouse button, the output image and caption are updated within a quarter second. We experimented with true real-time generation, but it became unclear how the undo/redo functionality would work with that addition.
 
-![unavailable](https://github.com/skywolf829/CSE5559_Final_Project/blob/master/Images/missing2.gif?raw=true)
+![unavailable](https://github.com/skywolf829/CSE5559_Final_Project/blob/master/Images/fullDemo.gif?raw=true)
 
 The GUI also hosts 3 graphs as well as a full history of generated images. The current metrics shown will always be between the last two images generated, unless the user selected a different image. You can tell which images are selected by examining which ones are highlighted in yellow. A different image can be selected by clicking one from the list. This will update the reported metrics as the distance between the two selected images. The graphs below show the sequence of the last 20 selections. By default, this will show the metrics changing over time as you make additions. You can hover over a single data point on any graph to see which two images created that metric, and then you can select those to be shown by clicking on them in the image history panel.
 
-![unavailable](https://github.com/skywolf829/CSE5559_Final_Project/blob/master/Images/missing3.gif?raw=true)
+![unavailable](https://github.com/skywolf829/CSE5559_Final_Project/blob/master/Images/metrics.gif?raw=true)
 
 ## Interesting captions
 
