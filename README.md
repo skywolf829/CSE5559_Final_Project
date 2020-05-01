@@ -166,6 +166,8 @@ Md. Zakir Hossain, Ferdous Sohel, Mohd Fairuz Shiratuddin, and Hamid Laga. 2018.
 
 Raffaella Bernardi, Ruket Cakici, Desmond Elliott, Aykut Erdem, Erkut Erdem, Nazli Ikizler-Cinbis, Frank Keller, Adrian Muscat, and Barbara Plank. 2016. Automatic description generation from images: a survey of models, datasets, and evaluation measures. J. Artif. Int. Res. 55, 1 (January 2016), 409–442. https://dl.acm.org/doi/10.5555/3013558.3013571
 
+Park, Taesung and Liu, Ming-Yu and Wang, Ting-Chun and Zhu, Jun-Yan. "Semantic Image Synthesis with Spatially-Adaptive Normalization". Proceedings of the IEEE Conference on Computer Vision and Pattern Recognition, 2019.
+
 # README
 This is a VISxAI project that follows this sequence of events:
 1. The user draws onto a canvas by selecting colors from classes. Effectively, they are drawing a segmentation map.
